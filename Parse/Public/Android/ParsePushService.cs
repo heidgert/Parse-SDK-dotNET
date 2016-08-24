@@ -17,6 +17,8 @@ namespace Parse {
   [Register("parse.ParsePushService")]
   public sealed class ParsePushService : IntentService {
     private const int IntentServiceHandlerTimeout = 10000;
+    private readonly object mutex = new object();
+    private HashSet<string> pushHistory = new HashSet<string>();
 
     /// <summary>
     /// Handle push intent from <see cref="ParsePushBroadcastReceiver"/>.
@@ -32,7 +34,15 @@ namespace Parse {
             break;
           case ParsePushBroadcastReceiver.ActionGcmReceive:
             if (ManifestInfo.HasPermissionForGCM()) {
-              ParsePush.parsePushNotificationReceived.Invoke(ParseInstallation.CurrentInstallation, new ParsePushNotificationEventArgs(ParsePush.PushJson(intent)));
+                string pushId = intent.GetStringExtra("push_id");
+                lock (mutex)
+                {
+                    if (!pushHistory.Contains(pushId))
+                    {
+                        pushHistory.Add(pushId);
+                        ParsePush.parsePushNotificationReceived.Invoke(ParseInstallation.CurrentInstallation, new ParsePushNotificationEventArgs(ParsePush.PushJson(intent)));
+                    }
+                }
             }
             break;
           default:
