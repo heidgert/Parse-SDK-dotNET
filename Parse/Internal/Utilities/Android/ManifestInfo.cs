@@ -204,7 +204,6 @@ namespace Parse {
           "android.permission.INTERNET",
           "android.permission.ACCESS_NETWORK_STATE",
           "android.permission.WAKE_LOCK",
-          "android.permission.GET_ACCOUNTS",
           "com.google.android.c2dm.permission.RECEIVE",
           PackageName + ".permission.C2D_MESSAGE"
         );
